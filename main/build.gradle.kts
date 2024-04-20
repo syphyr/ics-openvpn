@@ -21,7 +21,7 @@ android {
     //compileSdkPreview = "UpsideDownCake"
 
     // Also update runcoverity.sh
-    ndkVersion = "26.2.11394342"
+    ndkVersion = "26.3.11579264"
 
     defaultConfig {
         minSdk = 21
