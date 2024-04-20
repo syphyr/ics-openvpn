@@ -12,7 +12,7 @@ plugins {
 }
 
 android {
-    buildToolsVersion = "33.0.2"
+    buildToolsVersion = "33.0.3"
     buildFeatures {
         aidl = true
     }
