@@ -35,11 +35,13 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat.invalidateOptionsMenu
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.webkit.Navigation
 import de.blinkt.openvpn.LaunchVPN
 import de.blinkt.openvpn.R
 import de.blinkt.openvpn.VpnProfile
 import de.blinkt.openvpn.VpnProfile.TYPE_KEYSTORE
 import de.blinkt.openvpn.VpnProfile.TYPE_USERPASS_KEYSTORE
+import de.blinkt.openvpn.activities.BaseActivity
 import de.blinkt.openvpn.activities.ConfigConverter
 import de.blinkt.openvpn.core.ConnectionStatus
 import de.blinkt.openvpn.core.GlobalPreferences
@@ -170,7 +172,7 @@ class MinimalUI: Fragment(), VpnStatus.StateListener {
     }
 
     private fun checkForNotificationPermission(v: View) {
-        val permissionView = v.findViewById<View>(R.id.notification_permission)
+        val permissionView = v.findViewById<View>(R.id.notification_permission) ?: return
 
         val permissionGranted =
             requireActivity().checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
@@ -185,7 +187,7 @@ class MinimalUI: Fragment(), VpnStatus.StateListener {
     }
 
     private suspend fun checkForKeychainPermission(v: View) {
-        val keychainView = v.findViewById<View>(R.id.keychain_notification)
+        val keychainView = v.findViewById<View>(R.id.keychain_notification) ?: return
 
         val profile = ProfileManager.getAlwaysOnVPN(context)
 
@@ -255,6 +257,13 @@ class MinimalUI: Fragment(), VpnStatus.StateListener {
         vpntoggle.setOnClickListener { view ->
             toggleSwitchPressed(view as CompoundButton)
         }
+        if ((activity as BaseActivity).isAndroidTV)
+        {
+            with( view.findViewById<TextView>(R.id.minimal_ui_title)) {
+                setOnClickListener { _ -> toggleSwitchPressed(vpntoggle) }
+                visibility = View.VISIBLE;
+            }
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
             checkForNotificationPermission(view)
@@ -262,6 +271,11 @@ class MinimalUI: Fragment(), VpnStatus.StateListener {
         viewLifecycleOwner.lifecycleScope.launch {
         checkForKeychainPermission(view)
             }
+        view.setOnKeyListener { v, key, event ->
+            Toast.makeText(activity, "Got key event " + event + " key " + key + " view " + v, Toast.LENGTH_LONG).show();
+            false;
+        }
+
         return view
     }
 
