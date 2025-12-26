@@ -293,24 +293,28 @@ class MinimalUI: Fragment(), VpnStatus.StateListener {
         return false
     }
 
-    fun checkVpnConfigured(): VpnProfile? {
+    suspend fun checkVpnConfigured(): VpnProfile? {
         val alwaysOnVPN = ProfileManager.getAlwaysOnVPN(requireContext())
         if (alwaysOnVPN == null) {
-            Toast.makeText(
-                requireContext(),
-                R.string.cannot_start_vpn_not_configured,
-                Toast.LENGTH_SHORT
-            ).show();
+            withContext(Dispatchers.Main) {
+                Toast.makeText(
+                    requireContext(),
+                    R.string.cannot_start_vpn_not_configured,
+                    Toast.LENGTH_SHORT
+                ).show();
+            }
             return null
         }
 
         if (checkKeychainAccessIsMissing(alwaysOnVPN))
         {
-            Toast.makeText(
-                requireContext(),
-                R.string.keychain_access,
-                Toast.LENGTH_SHORT
-            ).show()
+            withContext(Dispatchers.Main) {
+                Toast.makeText(
+                    requireContext(),
+                    R.string.keychain_access,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
             return null
         }
         return alwaysOnVPN
