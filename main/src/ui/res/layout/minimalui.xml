@@ -23,7 +23,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             android:textAllCaps="true"
-            android:background="@color/button"
+            android:background="@drawable/button_background"
             app:layout_constraintTop_toTopOf="parent"
             />
 
@@ -40,7 +40,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             android:textAllCaps="false"
-            android:background="@color/button"
+            android:background="@drawable/button_background"
             app:layout_constraintTop_toBottomOf="@+id/minimal_ui_title"
 
 
@@ -60,7 +60,7 @@
             android:textAllCaps="false"
             android:focusable="true"
             app:layout_constraintTop_toBottomOf="@+id/notification_permission"
-            android:background="@color/button"
+            android:background="@drawable/button_background"
             tools:visibility="visible" />
 
     <CheckBox

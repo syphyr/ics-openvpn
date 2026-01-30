@@ -17,8 +17,8 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
+import android.os.RemoteException
 import android.security.KeyChain
-import android.security.KeyChainException
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.Menu
@@ -35,7 +35,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat.invalidateOptionsMenu
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import androidx.webkit.Navigation
 import de.blinkt.openvpn.LaunchVPN
 import de.blinkt.openvpn.R
 import de.blinkt.openvpn.VpnProfile
@@ -55,6 +54,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class MinimalUI: Fragment(), VpnStatus.StateListener {
+    private var mLastConnectionLevel: ConnectionStatus = ConnectionStatus.LEVEL_NOTCONNECTED
     private var mPermReceiver: ActivityResultLauncher<String>? = null
     private lateinit var mFileImportReceiver: ActivityResultLauncher<Intent?>
     private lateinit var profileManger: ProfileManager
@@ -230,7 +230,7 @@ class MinimalUI: Fragment(), VpnStatus.StateListener {
         state: String?,
         logmessage: String?,
         localizedResId: Int,
-        level: ConnectionStatus?,
+        level: ConnectionStatus,
         Intent: Intent?
     ) {
         val cleanLogMessage = VpnStatus.getLastCleanLogMessage(activity, true)
@@ -240,6 +240,7 @@ class MinimalUI: Fragment(), VpnStatus.StateListener {
             val connected = level == ConnectionStatus.LEVEL_CONNECTED;
             vpntoggle.isChecked = connected
         }
+        mLastConnectionLevel = level;
     }
 
     override fun setConnectedVPN(uuid: String?) {
@@ -333,6 +334,20 @@ class MinimalUI: Fragment(), VpnStatus.StateListener {
         if (alwaysOnVPN == null)
         {
             view.setChecked(false)
+            return
+        }
+
+        // Figure out if we should disconnect
+        if (!GlobalPreferences.getForceConnected() && mLastConnectionLevel != ConnectionStatus.LEVEL_NOTCONNECTED) {
+            ProfileManager.setConntectedVpnProfileDisconnected(requireContext())
+            val service = mService;
+            if (service != null) {
+                try {
+                    service.stopVPN(false)
+                } catch (e: RemoteException) {
+                    VpnStatus.logException(e)
+                }
+            }
             return
         }
 
