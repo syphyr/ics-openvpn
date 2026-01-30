@@ -7,7 +7,6 @@ import com.android.build.gradle.api.ApplicationVariant
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     id("checkstyle")
 }
 
@@ -142,10 +141,6 @@ android {
     compileOptions {
         targetCompatibility = JavaVersion.VERSION_17
         sourceCompatibility = JavaVersion.VERSION_17
-    }
-
-    kotlinOptions {
-        jvmTarget = "17"
     }
 
     splits {

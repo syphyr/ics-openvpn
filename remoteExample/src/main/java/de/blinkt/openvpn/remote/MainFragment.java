@@ -242,70 +242,58 @@ public class MainFragment extends Fragment implements View.OnClickListener, Hand
             Toast.makeText(getActivity(), "No service connection to OpenVPN for Android. App not installed?", Toast.LENGTH_LONG).show();
             return;
         }
-        switch (v.getId()) {
-            case R.id.startVPN:
-                try {
-                    prepareStartProfile(START_PROFILE_BYUUID);
-                } catch (RemoteException e) {
-                    e.printStackTrace();
-                }
-                break;
-            case R.id.disconnect:
-                try {
-                    mService.disconnect();
-                } catch (RemoteException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                break;
-            case R.id.setDefaultProfile:
-                try {
-                    prepareStartProfile(SET_DEFAULT_PROFILE_BYUUID);
-                } catch (RemoteException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                break;
-            case R.id.getMyIP:
+        int id = v.getId();
+        if (id == R.id.startVPN) {
+            try {
+                prepareStartProfile(START_PROFILE_BYUUID);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        } else if (id == R.id.disconnect) {
+            try {
+                mService.disconnect();
+            } catch (RemoteException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        } else if (id == R.id.setDefaultProfile) {
+            try {
+                prepareStartProfile(SET_DEFAULT_PROFILE_BYUUID);
+            } catch (RemoteException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        } else if (id == R.id.getMyIP) {// Socket handling is not allowed on main thread
+            new Thread() {
 
-                // Socket handling is not allowed on main thread
-                new Thread() {
-
-                    @Override
-                    public void run() {
-                        try {
-                            String myip = getMyOwnIP();
-                            Message msg = Message.obtain(mHandler,MSG_UPDATE_MYIP,myip);
-                            msg.sendToTarget();
-                        } catch (Exception e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
-
+                @Override
+                public void run() {
+                    try {
+                        String myip = getMyOwnIP();
+                        Message msg = Message.obtain(mHandler, MSG_UPDATE_MYIP, myip);
+                        msg.sendToTarget();
+                    } catch (Exception e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
                     }
-                }.start();
 
-                break;
-            case R.id.startembedded:
-                try {
-                    prepareStartProfile(START_PROFILE_EMBEDDED);
-                } catch (RemoteException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
                 }
-                break;
-
-            case R.id.addNewProfile:
-            case R.id.addNewProfileEdit:
-                int action = (v.getId() == R.id.addNewProfile) ? PROFILE_ADD_NEW : PROFILE_ADD_NEW_EDIT;
-                try {
-                    prepareStartProfile(action);
-                } catch (RemoteException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            default:
-                break;
+            }.start();
+        } else if (id == R.id.startembedded) {
+            try {
+                prepareStartProfile(START_PROFILE_EMBEDDED);
+            } catch (RemoteException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        } else if (id == R.id.addNewProfile || id == R.id.addNewProfileEdit) {
+            int action = (v.getId() == R.id.addNewProfile) ? PROFILE_ADD_NEW : PROFILE_ADD_NEW_EDIT;
+            try {
+                prepareStartProfile(action);
+            } catch (RemoteException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
 
     }
